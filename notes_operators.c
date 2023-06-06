@@ -179,8 +179,81 @@ int main(void){
     *set_high |= 0x1000;
     
     while(1);
-
-    
-
-    
 }
+
+/*
+*   Bitwise Operators 
+
+    Right shift operator (>>)
+    ex.:
+    char a = 111;
+    char b = a >> 4;
+    writing in binary a = 01101111
+    a >> 1 = 00110111
+    a >> 2 = 00011011
+    a >> 3 = 00001101
+    a >> 4 = 00000110 so 
+    b = 00000110 (0x06)
+
+    Left shift operator (<<0)
+    ex.: same values as before
+    a << 1 = 11011110
+    a << 2 = 10111100
+    a << 3 = 01111000
+    a << 4 = 11110000 
+    b = 11110000 (0xF0 or 240)
+
+    Use the shift operator to set the 4th bit
+    -> shift the number by the number you want to set so 1 << 4
+    In that way you can find the mask value, then
+    if Data = 0x08
+    Data = Data | (1<<4) = 0x18;
+
+    Use the shift operator to clear the 4th bit
+    -> Use same structure as before and then negate the mask
+    if Data = 0x18;
+    Data = Data & ~(1 << 4) = 0x08;
+    
+*/
+
+
+//rewrite the previous program to turn on Led
+#include<stdint.h>
+
+int main(void){
+    uint32_t *enable_clock = (uint32_t*)0x40023830;
+    uint32_t *enable_mode  = (uint32_t*)0x40020C00;
+    uint32_t *set_high     = (uint32_t*)0x40020C14;
+
+    //1. enable the clock for GPIOD peripheral in the AHN1ENR
+    //*enable_clock = *enable_clock | 0x08;
+    // can use short notation of the above
+    *enable_clock |= (1 << 3);
+
+    //2. configure the mode of the IO pin as output
+    //a. clear the 24th and 25th bit positions
+    *enable_mode &= ~( 3 << 24); // 3 in binary is 11 cleaning 24 and 25
+    //b. make 24th as 1 (SET)
+    *enable_mode |= (1 << 24);
+
+    //3. Set 12th bit of the output data register to make I/O pin-12 as HIGH
+    *set_high |= (1 << 12);
+    
+    while(1);
+}
+
+/*
+    Extract Bit
+    Data = 1011010000010000
+    1) first shift it by 9 (>>9)
+    Data = 0000000001011010
+    2) Mas the new value
+    Data   = 0000000001011010
+    mask   = 0000000000111111
+    output = 0000000000011010
+
+    uint16_t = 0xB410;
+    uint8_t output;
+
+    output = (uint8_t)((Data >> 9) & 0x003F)
+*/
