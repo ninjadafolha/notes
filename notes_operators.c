@@ -257,3 +257,64 @@ int main(void){
 
     output = (uint8_t)((Data >> 9) & 0x003F)
 */
+
+/*
+    TYPE QUALIFIERS IN C
+
+    - const
+    - volatile
+
+    1) const is a type qualifier used to enforce read-only feature on variables.
+    uint8_t data1 = 10;
+    data1 = 50; //allowed
+
+    uint8_t const data2 = 10;
+    data2 = 50; //compile-time-error
+
+    const uint8_t data = 10; -> I prefer this method
+    uint8_t const data = 10; 
+
+    -> you can still modify the content of the variable by using its address 
+
+*/
+
+int main(void){
+    const uint8_t data = 10;
+
+    data = 50; //it will show an error
+
+    uint8_t *ptr = (uint8_t*)&data; //cast needed to transforme to uint8_t * 
+    *ptr = 50; // this is allowed
+    
+}
+
+//modifying a global const will show and error once it will be placed in the read-only section of the memory
+
+/*
+uint8_t const *pData = (uint8_t*) 0x40000000;
+-> here the pointer pData is modifiable but the data pointed by the pData cannot be modified.
+Allowed:
+pData = (uint8_t*) 0x50000000;
+pData = (uint8_t*) 0x60000000;
+pData = (uint8_t*) 0x70000000;
+
+Not Allowed:
+*pData = 50;
+
+
+uint8_t *const pData = (uint8_t *) 0x40000000;
+-> Pointer pData is read-only but the data pointed by pData can be modified.
+-> pData is a read only pointer pointing to modifiable data
+
+Not allowed:
+pData = (uint8_t*)0x50000000;
+Allowed:
+*pData = 50;
+
+uint8_t const *const pData = (uint8_t*)0x40000000;
+-> pointer pData is read-only and the data pointed by pData is also read-only.
+ex.: read status register (you should not change anything inside the state register)
+
+
+
+*/
