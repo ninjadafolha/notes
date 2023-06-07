@@ -315,6 +315,128 @@ uint8_t const *const pData = (uint8_t*)0x40000000;
 -> pointer pData is read-only and the data pointed by pData is also read-only.
 ex.: read status register (you should not change anything inside the state register)
 
+*/
 
+
+// IMPLEMENT BLINKING LED BY ACCESSING THE REGISTERS
+#include<stdint.h>
+
+int main(void){
+
+    uint32_t *pClkCtrlReg   = (uint32_t*)0x40023830;
+    uint32_t *pPortDModeReg = (uint32_t*)0x40020C00;
+    uint32_t *pPortDOutReg  = (uint32_t*)0x40020C14;
+
+    uint32_t *pPortAModeReg = (uint32_t*)0x40020000; 
+    uint32_t *pPortAInReg   = (uint32_t*)0x40020010;
+
+    //1. enable the clock for GPIOD, GPIOA peripherals in the AHN1ENR
+    //*enable_clock = *enable_clock | 0x08;
+    // can use short notation of the above
+    *pClkCtrlReg |= (1 << 3);
+    *pClkCtrlReg |= (1 << 0);
+
+    //2. configure the mode of the IO pin as output
+    //a. clear the 24th and 25th bit positions
+    //configuring PD12 as output
+    *pPortDModeReg &= ~( 3 << 24); // 3 in binary is 11 cleaning 24 and 25
+    //b. make 24th as 1 (SET)
+    *pPortDModeReg |= (1 << 24);
+
+    //configure PA0 as input (GPIOA MODE REGISTER)
+    *pPortAModeReg &= ~(3<<0);
+    uint8_t pinStatus = (uint8_t)(*pPortAInReg & 0x1);
+
+    while(){
+        if(pinStatus){
+            // turn on LED
+            *pPortDOutReg |= (1 << 12);
+
+        }else{
+            // turn off LED
+            *pPortDOutReg &= ~(1 << 12);
+        }
+    }
+    
+    //3. Set 12th bit of the output data register to make I/O pin-12 as HIGH
+    //*set_high |= (1 << 12);
+    
+}
+
+/*
+    OPTIMIZATION AND VOLATILE QUALIFIER
+    you can supply: -O0, -O1, -O2, -O3
+
+    -> Use to instruct the compiler not to invoke any optimazation on the variable operation.
+    Ex.:
+    uint8_t volatile data1;
+    uint8_t volatile data2;
+    
+    data1 = 50;
+    data1 = data2;
+
+    Use volatile when your code is dealing with:
+    1- memory-mapped peripheral registers of the MCU
+    2- Multiple tasks accessing global variables(read/write) in an RTOS multithread application
+    3- When a global variable is used to share data between the main code and an ISR code.
+
+    case 1: volatile data
+    volatile uint8_t my_data;
+
+    case 2: non-volatile pointer to volatile data
+    uint8_t volatile *pStatusReg;
+    - This is a perfect case of accessing memory-mapped registers.
+
+    case 3: volatile pointer to non-volatile data
+    uint8_t *volatile pStatusReg;
+    case 4: volatile pointer to volatile data
+    uint8_t volatile *volatile pSatatusReg;
 
 */
+
+
+// FIXING THE CODE FOR A -O2 OPTIMIZATION
+#include<stdint.h>
+
+int main(void){
+
+    uint32_t volatile *pClkCtrlReg   = (uint32_t*)0x40023830;
+    uint32_t volatile *pPortDModeReg = (uint32_t*)0x40020C00;
+    uint32_t volatile *pPortDOutReg  = (uint32_t*)0x40020C14;
+
+    uint32_t volatile *pPortAModeReg = (uint32_t*)0x40020000; 
+    uint32_t volatile *pPortAInReg   = (uint32_t*)0x40020010;
+
+    //1. enable the clock for GPIOD, GPIOA peripherals in the AHN1ENR
+    //*enable_clock = *enable_clock | 0x08;
+    // can use short notation of the above
+    *pClkCtrlReg |= (1 << 3);
+    *pClkCtrlReg |= (1 << 0);
+
+    //2. configure the mode of the IO pin as output
+    //a. clear the 24th and 25th bit positions
+    //configuring PD12 as output
+    *pPortDModeReg &= ~( 3 << 24); // 3 in binary is 11 cleaning 24 and 25
+    //b. make 24th as 1 (SET)
+    *pPortDModeReg |= (1 << 24);
+
+    //configure PA0 as input (GPIOA MODE REGISTER)
+    *pPortAModeReg &= ~(3<<0);
+    
+    while(){
+        //read the pin status of the pin PA0
+        uint8_t pinStatus = (uint8_t)(*pPortAInReg & 0x1);
+        if(pinStatus){
+            // turn on LED
+            *pPortDOutReg |= (1 << 12);
+
+        }else{
+            // turn off LED
+            *pPortDOutReg &= ~(1 << 12);
+        }
+    }
+    
+    //3. Set 12th bit of the output data register to make I/O pin-12 as HIGH
+    //*set_high |= (1 << 12);
+    
+}
