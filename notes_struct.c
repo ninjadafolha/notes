@@ -20,6 +20,13 @@ struct CarModel{
     float    carWeight;
 };
 
+struct DataSet{
+    char  data1;
+    int   data2;
+    char  data3;
+    short data4;
+};
+
 int main(void){
     struct CarModel carGabriel = {2021,15000,220,1330};
     struct CarModel carOther   = {4031, 35000, 160, 1900.96};
@@ -34,4 +41,20 @@ int main(void){
     printf("carNumber = %u\n", carGabriel.carMaxSpeed);
     printf("carNumber = %u\n", carGabriel.carWeight);
 
+    struct DataSet data;
+
+    data.data1 = 0x11;
+    data.data2 = 0xFFFFEEEE;
+    data.data3 = 0x22;
+    data.data4 = 0xABCD;
+
+    uint8_t *ptr;
+    ptr = (uint8_t*)&data; //struct DataSet *
+
+    uint32_t totalSize = sizeof(struct DataSet)
+
+    for(uint32_t i=0; i< totalSize; i++){
+        printf("%p  %x\n", ptr, *ptr);
+        ptr++;
+    }
 }
