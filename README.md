@@ -1,2 +1,4 @@
 # STUDYING NOTES ABOUT C/C++ PROGRAMMING AND EMBEDDED SYSTEMS
 
+notes_operators:   
+notes_struct:
