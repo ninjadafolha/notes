@@ -252,7 +252,7 @@ int main(void){
     mask   = 0000000000111111
     output = 0000000000011010
 
-    uint16_t = 0xB410;
+    uint16_t Data = 0xB410;
     uint8_t output;
 
     output = (uint8_t)((Data >> 9) & 0x003F)
@@ -440,3 +440,21 @@ int main(void){
     //*set_high |= (1 << 12);
     
 }
+
+/*
+    UNIONS 
+
+    A union is similar to a structure except all its members start at the same location in memory
+
+    struct address{
+        uint16_t shortAddr;
+        uint32_t longAddr;
+    };
+
+    union address{
+        uint16_t shortAddr;
+        uint32_t longAddr;
+    }
+
+    helps to save memory, ex.: when implementing RX TX 
+*/
